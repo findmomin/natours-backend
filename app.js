@@ -22,8 +22,8 @@ const getAllTours = (req, res) => {
 
 // Get single tour
 const getSingleTour = (req, res) => {
-  const id = req.params.id;
-  const tour = tours.find((tour) => tour.id === +id);
+  const { id } = req.params;
+  const tour = tours.find((existingTour) => existingTour.id === +id);
 
   // If no tour found
   if (!tour)
@@ -51,7 +51,7 @@ const postTour = (req, res) => {
   fs.writeFile(
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
-    (err, data) => {
+    (err) => {
       if (err) return res.status(500).json({ status: 'fail' });
 
       res.status(201).json({
@@ -66,8 +66,8 @@ const postTour = (req, res) => {
 
 // Update a tour
 const updateTour = (req, res) => {
-  const id = req.params.id;
-  const tour = tours.find((tour) => tour.id === +id);
+  const { id } = req.params;
+  const tour = tours.find((existingTour) => existingTour.id === +id);
 
   // If no tour found
   if (!tour)
@@ -82,15 +82,15 @@ const updateTour = (req, res) => {
   };
 
   // Updating the tours
-  const updatedTours = tours.map((tour) =>
-    tour.id === updatedTour.id ? updatedTour : tour
+  const updatedTours = tours.map((existingTour) =>
+    existingTour.id === updatedTour.id ? updatedTour : existingTour
   );
 
   // Updating the tour file
   fs.writeFile(
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(updatedTours),
-    (err, data) => {
+    (err) => {
       if (err) return res.status(500).json({ status: 'fail' });
 
       res.status(200).json({
@@ -103,8 +103,8 @@ const updateTour = (req, res) => {
 
 // Delete a tour
 const deleteTour = (req, res) => {
-  const id = req.params.id;
-  const tour = tours.find((tour) => tour.id === +id);
+  const { id } = req.params;
+  const tour = tours.find((existingTour) => existingTour.id === +id);
 
   // If no tour found
   if (!tour)
@@ -122,7 +122,7 @@ const deleteTour = (req, res) => {
   fs.writeFile(
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(updatedTours),
-    (err, data) => {
+    (err) => {
       if (err) return res.status(500).json({ status: 'fail' });
 
       res.status(204).json({
