@@ -20,6 +20,24 @@ app.get('/api/v1/tours', (req, res) => {
   });
 });
 
+// Get single tour
+app.get('/api/v1/tours/:id', (req, res) => {
+  const id = req.params.id;
+  const tour = tours.find((tour) => tour.id === +id);
+
+  // If no tour found
+  if (!tour)
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid id',
+    });
+
+  res.status(200).json({
+    status: 'success',
+    data: { tour },
+  });
+});
+
 // Post tours
 app.post('/api/v1/tours', (req, res) => {
   const id = tours[tours.length - 1].id + 1;
@@ -30,7 +48,89 @@ app.post('/api/v1/tours', (req, res) => {
   tours.push(newTour);
 
   // Updating the tour file
-  console.log(newTour);
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(tours),
+    (err, data) => {
+      if (err) return res.status(500).json({ status: 'fail' });
+
+      res.status(201).json({
+        status: 'success',
+        data: {
+          tour: newTour,
+        },
+      });
+    }
+  );
+});
+
+// Update tour
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const id = req.params.id;
+  const tour = tours.find((tour) => tour.id === +id);
+
+  // If no tour found
+  if (!tour)
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid id',
+    });
+
+  const updatedTour = {
+    ...tour,
+    ...req.body,
+  };
+
+  // Updating the tours
+  const updatedTours = tours.map((tour) =>
+    tour.id === updatedTour.id ? updatedTour : tour
+  );
+
+  // Updating the tour file
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(updatedTours),
+    (err, data) => {
+      if (err) return res.status(500).json({ status: 'fail' });
+
+      res.status(200).json({
+        status: 'success',
+        data: { tour: updatedTour },
+      });
+    }
+  );
+});
+
+// Delete tour
+app.delete('/api/v1/tours/:id', (req, res) => {
+  const id = req.params.id;
+  const tour = tours.find((tour) => tour.id === +id);
+
+  // If no tour found
+  if (!tour)
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid id',
+    });
+
+  // Updating the tours
+  const updatedTours = tours.filter(
+    (existingTour) => tour.id !== existingTour.id
+  );
+
+  // Updating the tour file
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(updatedTours),
+    (err, data) => {
+      if (err) return res.status(500).json({ status: 'fail' });
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Tour deleted',
+      });
+    }
+  );
 });
 
 app.listen(port, () => {
