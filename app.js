@@ -6,16 +6,16 @@ const userRouter = require('./routers/userRoutes');
 // Initializing app
 const app = express();
 
-const port = 3000;
-
 // Middlewares
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(express.static(`${__dirname}/public`));
+
+if (app.get('env') === 'development') {
+  app.use(morgan('dev'));
+}
 
 // Mounting routers
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
-app.listen(port, () => {
-  console.log('app listening on port 3000');
-});
+module.exports = app;
