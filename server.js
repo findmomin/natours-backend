@@ -6,12 +6,14 @@ const app = require('./app');
 dotenv.config({ path: './config.env' });
 
 // Connecting to mongoDB
-mongoose.connect(process.env.DATABASE, {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
-  useUnifiedTopology: true,
-});
+mongoose
+  .connect(process.env.DATABASE, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('Connected to DB Successfully'));
 
 const port = process.env.PORT || 3000;
 
