@@ -5,31 +5,6 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
-// Custom middlewares
-exports.checkId = (req, res, next, val) => {
-  const tour = tours.find((existingTour) => existingTour.id === +val);
-
-  // If no tour found
-  if (!tour)
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid id',
-    });
-  next();
-};
-
-exports.checkBody = (req, res, next) => {
-  const tour = req.body;
-
-  if (!tour.name && !tour.price)
-    return res.status(404).json({
-      status: 'fail',
-      message: 'You must include price and name to create a tour',
-    });
-
-  next();
-};
-
 // Get tours
 exports.getAllTours = (req, res) => {
   res.status(200).json({
