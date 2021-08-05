@@ -3,6 +3,11 @@ const tourController = require('../controllers/tourController');
 
 const router = express.Router();
 
+router.route('/top-5-cheap').get((req, res, next) => {
+  req.query = { sort: '-rating,price', limit: '5' };
+  next();
+}, tourController.getAllTours);
+
 router
   .route('/')
   .get(tourController.getAllTours)
