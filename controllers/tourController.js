@@ -5,6 +5,8 @@ exports.getAllTours = async (req, res) => {
   try {
     const queryObj = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    const defaultLimit = 100;
+    const defaultPage = 1;
 
     excludedFields.forEach((field) => delete queryObj[field]);
     const updatedQueryObj = JSON.parse(
@@ -33,6 +35,18 @@ exports.getAllTours = async (req, res) => {
       query = query.select(fields);
     } else {
       query = query.select('-__v');
+    }
+
+    // Pagination
+    const limit = +req.query.limit || defaultLimit;
+    const skip = ((+req.query.page || defaultPage) - 1) * limit;
+
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const tourCount = await Tour.countDocuments();
+
+      if (skip >= tourCount) throw new Error('This page does not exist');
     }
 
     // Getting data from query
