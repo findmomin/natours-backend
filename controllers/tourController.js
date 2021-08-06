@@ -1,56 +1,16 @@
 const Tour = require('../models/tourModel');
+const APIFeatures = require('../utils/apiFeatures');
 
 // Get tours
 exports.getAllTours = async (req, res) => {
   try {
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    const defaultLimit = 100;
-    const defaultPage = 1;
-
-    excludedFields.forEach((field) => delete queryObj[field]);
-    const updatedQueryObj = JSON.parse(
-      JSON.stringify(queryObj).replace(
-        /\b(gt|gte|lt|lte)\b/g,
-        (match) => `$${match}`
-      )
-    );
-
-    // Building query
-    let query = Tour.find(updatedQueryObj);
-
-    // Sorting
-    if (req.query.sort) {
-      const sortBy = req.query.sort.replace(/,/g, ' ');
-
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
-    }
-
-    // Field limiting
-    if (req.query.fields) {
-      const fields = req.query.fields.replace(/,/g, ' ');
-
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
-
-    // Pagination
-    const limit = +req.query.limit || defaultLimit;
-    const skip = ((+req.query.page || defaultPage) - 1) * limit;
-
-    query = query.skip(skip).limit(limit);
-
-    if (req.query.page) {
-      const tourCount = await Tour.countDocuments();
-
-      if (skip >= tourCount) throw new Error('This page does not exist');
-    }
-
     // Getting data from query
-    const tours = await query;
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    const tours = await features.query;
 
     // Sending response
     res.status(200).json({
@@ -137,6 +97,41 @@ exports.deleteTour = async (req, res) => {
       status: 'success',
       data: {
         tour: deletedTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+
+exports.getTourStats = async (req, res) => {
+  try {
+    const stats = await Tour.aggregate([
+      {
+        $match: {
+          ratingsAverage: { $gte: 4.5 },
+        },
+      },
+      {
+        $group: {
+          _id: '$difficulty',
+          averageRating: { $avg: '$ratingsAverage' },
+          averagePrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+          numRatings: { $sum: '$ratingsQuantity' },
+          numTours: { $sum: 1 },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        stats,
       },
     });
   } catch (err) {
