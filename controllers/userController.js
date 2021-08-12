@@ -1,7 +1,17 @@
+const { catchAsync } = require('../helpers');
+const User = require('../models/userModel');
+
 // Get all users
-exports.getAllUsers = (req, res) => {
-  res.json({ status: 'Good' });
-};
+exports.getAllUsers = catchAsync(async (req, res) => {
+  const users = await User.find();
+
+  // Sending response
+  res.status(200).json({
+    status: 'success',
+    results: users.length,
+    data: { users },
+  });
+});
 
 // Create an user
 exports.createUser = (req, res) => {
