@@ -3,7 +3,7 @@ const User = require('../models/userModel');
 const helpers = require('../helpers');
 const AppError = require('../utils/appError');
 
-const signToken = payload =>
+const signToken = (payload) =>
   jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
@@ -56,17 +56,32 @@ exports.protect = helpers.catchAsync(async (req, res, next) => {
     !req.headers.authorization.startsWith('Bearer')
   )
     return next(
-      new AppError('You are not authorized to access this route', 401)
+      new AppError('You are not logged in. Please login to get access.', 401)
     );
 
-  // Verify token
-  const token = req.body.authorization;
+  try {
+    // Verify token
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-  console.log(token);
+    // Check if the user still exists
+    const user = await User.findById(decoded.id);
 
-  // Check if the user still exists
+    if (!user)
+      return next(
+        new AppError('The user belonging to this user does not exist.', 401)
+      );
 
-  // Check if the user changed password, after the jwt was issued
+    // Check if the user changed password, after the jwt was issued
+    if (user.changesPasswordAfter(decoded.iat))
+      return next(
+        new AppError('User recently changed password. Please login again.', 401)
+      );
 
-  next();
+    // Grant access to the protected route
+    req.user = user;
+    next();
+  } catch (err) {
+    return next(new AppError(err, 401));
+  }
 });
