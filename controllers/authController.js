@@ -3,7 +3,7 @@ const User = require('../models/userModel');
 const helpers = require('../helpers');
 const AppError = require('../utils/appError');
 
-const signToken = (payload) =>
+const signToken = payload =>
   jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
@@ -47,4 +47,26 @@ exports.login = helpers.catchAsync(async (req, res, next) => {
     status: 'success',
     token,
   });
+});
+
+exports.protect = helpers.catchAsync(async (req, res, next) => {
+  // Get token and see if it exists
+  if (
+    !req.headers.authorization ||
+    !req.headers.authorization.startsWith('Bearer')
+  )
+    return next(
+      new AppError('You are not authorized to access this route', 401)
+    );
+
+  // Verify token
+  const token = req.body.authorization;
+
+  console.log(token);
+
+  // Check if the user still exists
+
+  // Check if the user changed password, after the jwt was issued
+
+  next();
 });
