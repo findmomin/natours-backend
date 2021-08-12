@@ -59,13 +59,15 @@ exports.protect = helpers.catchAsync(async (req, res, next) => {
       new AppError('You are not logged in. Please login to get access.', 401)
     );
 
+  let user;
+
   try {
     // Verify token
     const token = req.headers.authorization.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Check if the user still exists
-    const user = await User.findById(decoded.id);
+    user = await User.findById(decoded.id);
 
     if (!user)
       return next(
@@ -77,11 +79,11 @@ exports.protect = helpers.catchAsync(async (req, res, next) => {
       return next(
         new AppError('User recently changed password. Please login again.', 401)
       );
-
-    // Grant access to the protected route
-    req.user = user;
-    next();
   } catch (err) {
     return next(new AppError(err, 401));
   }
+
+  // Grant access to the protected route
+  req.user = user;
+  next();
 });
