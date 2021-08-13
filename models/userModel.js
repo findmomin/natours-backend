@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema({
       message: 'Password and password confirm must match!',
     },
   },
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin'],
+    default: 'user',
+  },
   passwordChangedAt: Date,
 });
 
