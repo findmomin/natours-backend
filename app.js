@@ -1,5 +1,6 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const morgan = require('morgan');
 const tourRouter = require('./routers/tourRoutes');
 const userRouter = require('./routers/userRoutes');
@@ -15,8 +16,10 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again in an hour!',
 });
 
+app.use(helmet());
 app.use('/api', limiter);
-app.use(express.json());
+
+app.use(express.json({ limit: '10kb' }));
 app.use(express.static(`${__dirname}/public`));
 
 if (app.get('env') === 'development') {
