@@ -7,6 +7,7 @@ const hpp = require('hpp');
 const morgan = require('morgan');
 const tourRouter = require('./routers/tourRoutes');
 const userRouter = require('./routers/userRoutes');
+const reviewRouter = require('./routers/reviewRoutes');
 const AppError = require('./utils/appError');
 
 // Initializing app
@@ -45,6 +46,7 @@ if (app.get('env') === 'development') {
 // Mounting routers
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 app.all('*', (req, res, next) =>
   next(new AppError(`can't find ${req.originalUrl} on the server!`, 404))
