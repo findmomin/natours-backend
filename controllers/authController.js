@@ -176,3 +176,26 @@ exports.resetPassword = helpers.catchAsync(async (req, res, next) => {
     token,
   });
 });
+
+exports.updatePassword = helpers.catchAsync(async (req, res, next) => {
+  // Get user based on provided password
+  const { currentPassword, newPassword, newPasswordConfirm } = req.body;
+
+  const user = await User.findById(req.user.id).select('+password');
+
+  if (!(await user.correctPassword(currentPassword, user.password)))
+    return next(new AppError('Incorrect email or password', 401));
+
+  // Update the password
+  user.password = newPassword;
+  user.passwordConfirm = newPasswordConfirm;
+  await user.save();
+
+  // Log the user in
+  const token = signToken({ id: user._id });
+
+  res.status(200).json({
+    status: 'success',
+    token,
+  });
+});
