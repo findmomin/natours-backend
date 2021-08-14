@@ -1,6 +1,9 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 const morgan = require('morgan');
 const tourRouter = require('./routers/tourRoutes');
 const userRouter = require('./routers/userRoutes');
@@ -18,8 +21,21 @@ const limiter = rateLimit({
 
 app.use(helmet());
 app.use('/api', limiter);
-
 app.use(express.json({ limit: '10kb' }));
+app.use(mongoSanitize());
+app.use(xss());
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  })
+);
 app.use(express.static(`${__dirname}/public`));
 
 if (app.get('env') === 'development') {
