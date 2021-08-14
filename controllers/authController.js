@@ -10,6 +10,18 @@ const signToken = (payload) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const createSendToken = (payload, res) => {
+  const token = signToken(payload);
+
+  res.cookie('jwt', token, {
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    // secure: true,
+    httpOnly: true,
+  });
+
+  return token;
+};
+
 exports.signup = helpers.catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -17,8 +29,9 @@ exports.signup = helpers.catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
   });
+  newUser.password = undefined;
 
-  const token = signToken({ id: newUser._id });
+  const token = createSendToken({ id: newUser._id }, res);
 
   res.status(201).json({
     status: 'success',
@@ -43,7 +56,7 @@ exports.login = helpers.catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
 
   // If everything is ok, send the jwt to client
-  const token = signToken({ id: user._id });
+  const token = createSendToken({ id: user._id }, res);
 
   res.status(200).json({
     status: 'success',
@@ -169,7 +182,7 @@ exports.resetPassword = helpers.catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   // Log the user in
-  const token = signToken({ id: user._id });
+  const token = createSendToken({ id: user._id }, res);
 
   res.status(200).json({
     status: 'success',
@@ -192,7 +205,7 @@ exports.updatePassword = helpers.catchAsync(async (req, res, next) => {
   await user.save();
 
   // Log the user in
-  const token = signToken({ id: user._id });
+  const token = createSendToken({ id: user._id }, res);
 
   res.status(200).json({
     status: 'success',
