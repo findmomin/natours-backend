@@ -115,6 +115,12 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
+
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;

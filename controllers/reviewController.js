@@ -2,7 +2,11 @@ const { catchAsync } = require('../helpers');
 const Review = require('../models/reviewModel');
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
-  const reviews = await Review.find();
+  let filter = {};
+
+  if (req.params.tourId) filter = { tour: req.params.tourId };
+
+  const reviews = await Review.find(filter);
 
   res.status(200).json({
     status: 'success',
@@ -14,7 +18,7 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
 });
 
 exports.createReview = catchAsync(async (req, res, next) => {
-  const review = { ...req.body, user: req.user.id };
+  const review = { ...req.body, user: req.user.id, tour: req.params.tourId };
 
   const createdReview = await Review.create(review);
 
