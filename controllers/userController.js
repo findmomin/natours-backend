@@ -1,19 +1,10 @@
 const { catchAsync } = require('../helpers');
 const AppError = require('../utils/appError');
 const User = require('../models/userModel');
-const { deleteOne, updateOne } = require('./handlerFactory');
+const { deleteOne, updateOne, getOne, getAll } = require('./handlerFactory');
 
 // Get all users
-exports.getAllUsers = catchAsync(async (req, res) => {
-  const users = await User.find();
-
-  // Sending response
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: { users },
-  });
-});
+exports.getAllUsers = getAll(User);
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   // Create error if user posts password data
@@ -41,15 +32,8 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   res.status(204).json({ status: 'success', data: null });
 });
 
-// Create an user
-exports.createUser = (req, res) => {
-  res.json({ status: 'Good' });
-};
-
 // Get single user
-exports.getSingleUser = (req, res) => {
-  res.json({ status: 'Good' });
-};
+exports.getSingleUser = getOne(User);
 
 // Update an user
 exports.updateUser = updateOne(User);
