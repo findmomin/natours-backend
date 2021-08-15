@@ -2,7 +2,7 @@ const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const helpers = require('../helpers');
-const { deleteOne } = require('./handlerFactory');
+const { deleteOne, updateOne, createOne } = require('./handlerFactory');
 
 // Get tours
 exports.getAllTours = helpers.catchAsync(async (req, res, next) => {
@@ -36,35 +36,10 @@ exports.getSingleTour = helpers.catchAsync(async (req, res, next) => {
 });
 
 // Post a tour
-exports.createTour = helpers.catchAsync(async (req, res, next) => {
-  const createdTour = await Tour.create(req.body);
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour: createdTour,
-    },
-  });
-});
+exports.createTour = createOne(Tour);
 
 // Update a tour
-exports.updateTour = helpers.catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-
-  const updatedTour = await Tour.findByIdAndUpdate(id, req.body, {
-    new: true,
-  });
-
-  if (!updatedTour)
-    return next(new AppError('No tour found with that id', 404));
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour: updatedTour,
-    },
-  });
-});
+exports.updateTour = updateOne(Tour);
 
 // Delete a tour
 exports.deleteTour = deleteOne(Tour);

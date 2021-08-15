@@ -1,7 +1,7 @@
 const { catchAsync } = require('../helpers');
 const AppError = require('../utils/appError');
 const User = require('../models/userModel');
-const { deleteOne } = require('./handlerFactory');
+const { deleteOne, updateOne } = require('./handlerFactory');
 
 // Get all users
 exports.getAllUsers = catchAsync(async (req, res) => {
@@ -52,9 +52,7 @@ exports.getSingleUser = (req, res) => {
 };
 
 // Update an user
-exports.updateUser = (req, res) => {
-  res.json({ status: 'Good' });
-};
+exports.updateUser = updateOne(User);
 
 // Delete an user
 exports.deleteUser = deleteOne(User);
