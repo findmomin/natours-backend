@@ -6,6 +6,20 @@ const { deleteOne, updateOne, getOne, getAll } = require('./handlerFactory');
 // Get all users
 exports.getAllUsers = getAll(User);
 
+// Get single user
+exports.getSingleUser = getOne(User);
+
+// Update an user
+exports.updateUser = updateOne(User);
+
+// Delete an user
+exports.deleteUser = deleteOne(User);
+
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
 exports.updateMe = catchAsync(async (req, res, next) => {
   // Create error if user posts password data
   if (req.body.password || req.body.passwordConfirm)
@@ -31,12 +45,3 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 
   res.status(204).json({ status: 'success', data: null });
 });
-
-// Get single user
-exports.getSingleUser = getOne(User);
-
-// Update an user
-exports.updateUser = updateOne(User);
-
-// Delete an user
-exports.deleteUser = deleteOne(User);
