@@ -9,6 +9,7 @@ const morgan = require('morgan');
 const tourRouter = require('./routers/tourRoutes');
 const userRouter = require('./routers/userRoutes');
 const reviewRouter = require('./routers/reviewRoutes');
+const viewRouter = require('./routers/viewRoutes');
 const AppError = require('./utils/appError');
 
 // Initializing app
@@ -49,14 +50,33 @@ if (app.get('env') === 'development') {
 
 ////////////////////// API routes
 // Mounting routers
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 
 /////////////////////// Client page routes
-app.get('/', (req, res) => {
-  res.status(200).render('base');
-});
+app.get('/', (req, res) => res.status(200).render('overview'));
+
+const a = `
+footer.footer
+  .footer__logo
+    img(src='img/logo-green.png' alt='Natours logo')
+  ul.footer__nav
+    li
+      a(href='#') About us
+    li
+      a(href='#') Download apps
+    li
+      a(href='#') Become a guide
+    li
+      a(href='#') Careers
+    li
+      a(href='#') Contact
+  p.footer__copyright
+    | &copy; by Jonas Schmedtmann. All rights reserved.
+
+`;
 
 app.all('*', (req, res, next) =>
   next(new AppError(`can't find ${req.originalUrl} on the server!`, 404))
