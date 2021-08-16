@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
@@ -12,6 +13,9 @@ const AppError = require('./utils/appError');
 
 // Initializing app
 const app = express();
+
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
 
 // Middleware
 const limiter = rateLimit({
@@ -43,10 +47,16 @@ if (app.get('env') === 'development') {
   app.use(morgan('dev'));
 }
 
+////////////////////// API routes
 // Mounting routers
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+
+/////////////////////// Client page routes
+app.get('/', (req, res) => {
+  res.status(200).render('base');
+});
 
 app.all('*', (req, res, next) =>
   next(new AppError(`can't find ${req.originalUrl} on the server!`, 404))
