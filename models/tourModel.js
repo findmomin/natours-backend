@@ -44,6 +44,8 @@ const tourSchema = new mongoose.Schema(
     ratingsAverage: {
       type: Number,
       default: 4.5,
+      min: 1,
+      max: 5,
     },
     ratingsQuantity: {
       type: Number,
@@ -95,6 +97,10 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
 
 // Document middleware
 tourSchema.pre('save', function (next) {
